@@ -392,7 +392,7 @@ udpif_create(struct dpif_backer *backer, struct dpif *dpif)
 
     udpif->dpif = dpif;
     udpif->backer = backer;
-    atomic_init(&udpif->flow_limit, MIN(ofproto_flow_limit, 10000));
+    atomic_init(&udpif->flow_limit, MIN(ofproto_flow_limit, 50000));
     udpif->reval_seq = seq_create();
     udpif->dump_seq = seq_create();
     latch_init(&udpif->exit_latch);
@@ -898,18 +898,18 @@ udpif_revalidator(void *arg)
 
             duration = MAX(time_msec() - start_time, 1);
             udpif->dump_duration = duration;
-            if (duration > 2000) {
+            if (duration > ofproto_flow_limit_dynamic[0]) {
                 flow_limit /= duration / 1000;
-            } else if (duration > 1300) {
+            } else if (duration > ofproto_flow_limit_dynamic[1]) {
                 flow_limit = flow_limit * 3 / 4;
-            } else if (duration < 1000 && n_flows > 2000
-                       && flow_limit < n_flows * 1000 / duration) {
+            } else if (duration < ofproto_flow_limit_dynamic[2]
+                       && flow_limit < n_flows * ofproto_flow_limit_dynamic[2] / duration) {
                 flow_limit += 1000;
             }
-            flow_limit = MIN(ofproto_flow_limit, MAX(flow_limit, 1000));
+            flow_limit = MIN(ofproto_flow_limit, MAX(flow_limit, 5000));
             atomic_store_relaxed(&udpif->flow_limit, flow_limit);
 
-            if (duration > 2000) {
+            if (duration > ofproto_flow_limit_dynamic[0]) {
                 VLOG_INFO("Spent an unreasonably long %lldms dumping flows",
                           duration);
             }
@@ -939,7 +939,7 @@ udpif_revalidator(void *arg)
 
     return NULL;
 }
-
+
 static enum upcall_type
 classify_upcall(enum dpif_upcall_type type, const struct nlattr *userdata)
 {
@@ -1767,8 +1767,8 @@ should_revalidate(const struct udpif *udpif, uint64_t packets,
     duration = now - used;
     metric = duration / packets;
 
-    if (metric < 200) {
-        /* The flow is receiving more than ~5pps, so keep it. */
+    if (metric < 2000) {
+        /* The flow is receiving more than ~0.5pps, so keep it. */
         return true;
     }
     return false;
@@ -1832,7 +1832,7 @@ revalidate_ukey(struct udpif *udpif, struct udpif_key *ukey,
         && !should_revalidate(udpif, push.n_packets, last_used)) {
         goto exit;
     }
-
+	
     /* We will push the stats, so update the ukey stats cache. */
     ukey->stats = *stats;
     if (!push.n_packets && !need_revalidate) {

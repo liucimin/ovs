@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <database name="ovs-vswitchd.conf.db" title="Open vSwitch Configuration Database">
   <p>
     A database with this schema holds the configuration for one Open
@@ -334,6 +334,15 @@
           <code>netdev</code> bridges), then the total number of threads is
           <code>n-handler-threads</code> times the number of software
           datapaths.
+        </p>
+      </column>
+      <column name="other_config" key="flow-limit-dynamic"
+              type='{"type": "string"}'>
+        <p>
+          Specifies flow-limit-dynamic.
+        </p>
+        <p>
+          If not specified, this will "2000,1300,1000".
         </p>
       </column>
     </group>

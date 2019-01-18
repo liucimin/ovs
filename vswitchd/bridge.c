@@ -589,6 +589,7 @@ bridge_reconfigure(const struct ovsrec_open_vswitch *ovs_cfg)
         smap_get_int(&ovs_cfg->other_config, "n-handler-threads", 0),
         smap_get_int(&ovs_cfg->other_config, "n-revalidator-threads", 0));
 
+    ofproto_set_flow_limit_dynamic(smap_get_def(&ovs_cfg->other_config, "flow-limit-dynamic", "2000,1300,1000"));
     /* Destroy "struct bridge"s, "struct port"s, and "struct iface"s according
      * to 'ovs_cfg', with only very minimal configuration otherwise.
      *

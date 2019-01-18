@@ -310,6 +310,8 @@ struct ovs_mutex ofproto_mutex = OVS_MUTEX_INITIALIZER;
 
 unsigned ofproto_flow_limit = OFPROTO_FLOW_LIMIT_DEFAULT;
 unsigned ofproto_max_idle = OFPROTO_MAX_IDLE_DEFAULT;
+unsigned ofproto_flow_limit_dynamic[3] = {2000, 1300, 1000};
+
 
 size_t n_handlers, n_revalidators;
 char *pmd_cpu_mask;
@@ -780,6 +782,48 @@ ofproto_set_threads(int n_handlers_, int n_revalidators_)
         n_handlers = MAX(threads - (int) n_revalidators, 1);
     }
 }
+
+void
+ofproto_set_flow_limit_dynamic(const char *times)
+{
+	char *save_ptr = NULL;
+	bool ok = false;
+	char *cup_duration, *cmid_duration, *cdown_duration;
+	unsigned up_duration, mid_duration, down_duration;
+	char* ctimes = xstrdup(times);
+	
+	cup_duration = strtok_r(ctimes, ",", &save_ptr);
+	if(!cup_duration){
+
+		return;
+	}
+	
+	cmid_duration = strtok_r(NULL, ",", &save_ptr);
+	if(!cmid_duration){
+
+		return;
+	}
+	
+	cdown_duration = strtok_r(NULL, ",", &save_ptr);
+	if(!cdown_duration){
+
+		return;
+	}
+
+	ok = str_to_uint(cup_duration, 0, &up_duration);
+	ok &= str_to_uint(cmid_duration, 0, &mid_duration);
+	ok &= str_to_uint(cdown_duration, 0, &down_duration);
+
+	if(ok){
+		
+		ofproto_flow_limit_dynamic[0] = up_duration;
+		ofproto_flow_limit_dynamic[1] = mid_duration;
+		ofproto_flow_limit_dynamic[2] = down_duration;
+	}
+	return;	
+}
+
+
 
 void
 ofproto_set_dp_desc(struct ofproto *p, const char *dp_desc)

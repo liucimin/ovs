@@ -803,6 +803,21 @@ netdev_to_ovs_vport_type(const struct netdev *netdev)
     }
 }
 
+void request_print(struct dpif_netlink_vport *request){
+
+    
+    VLOG_INFO("request.cmd              %d\n",request->cmd);
+    VLOG_INFO("request.dp_ifindex       %d\n",request->dp_ifindex);
+    VLOG_INFO("request.type             %d\n",request->type);
+    VLOG_INFO("request.name             %s\n",request->name);
+    VLOG_INFO("request.port_no          %d\n",request->port_no);
+    VLOG_INFO("request.n_upcall_pids    %d\n",request->n_upcall_pids);
+    //VLOG_INFO("request.upcall_pids        %s\n",request->upcall_pids);
+    //VLOG_INFO("request.options_len      %u\n",request->options_len);
+}
+    
+
+
 static int
 dpif_netlink_port_add__(struct dpif_netlink *dpif, struct netdev *netdev,
                         odp_port_t *port_nop)
@@ -876,7 +891,7 @@ dpif_netlink_port_add__(struct dpif_netlink *dpif, struct netdev *netdev,
     upcall_pids = vport_socksp_to_pids(socksp, dpif->n_handlers);
     request.n_upcall_pids = socksp ? dpif->n_handlers : 1;
     request.upcall_pids = upcall_pids;
-
+    //request_print(&request);
     error = dpif_netlink_vport_transact(&request, &reply, &buf);
     if (!error) {
         *port_nop = reply.port_no;
@@ -2568,6 +2583,7 @@ dpif_netlink_vport_transact(const struct dpif_netlink_vport *request,
 
     request_buf = ofpbuf_new(1024);
     dpif_netlink_vport_to_ofpbuf(request, request_buf);
+    //VLOG_INFO("[JK] request buf %s", ofpbuf_to_string(request_buf,2048));
     error = nl_transact(NETLINK_GENERIC, request_buf, bufp);
     ofpbuf_delete(request_buf);
 

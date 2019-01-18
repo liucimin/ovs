@@ -322,6 +322,9 @@ int ofproto_set_mcast_snooping(struct ofproto *ofproto,
 int ofproto_port_set_mcast_snooping(struct ofproto *ofproto, void *aux,
                           const struct ofproto_mcast_snooping_port_settings *s);
 void ofproto_set_threads(int n_handlers, int n_revalidators);
+
+void ofproto_set_flow_limit_dynamic(const char *times);
+
 void ofproto_set_cpu_mask(const char *cmask);
 void ofproto_set_dp_desc(struct ofproto *, const char *dp_desc);
 int ofproto_set_snoops(struct ofproto *, const struct sset *snoops);

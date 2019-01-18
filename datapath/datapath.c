@@ -948,6 +948,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
 
 	/* Must have key and actions. */
 	error = -EINVAL;
+       //printk(KERN_ERR "Hello ovs_flow_cmd_new  %s!/n", nla_data(a[OVS_VPORT_ATTR_NAME]));
 	if (!a[OVS_FLOW_ATTR_KEY]) {
 		OVS_NLERR(log, "Flow key attr not present in new flow.");
 		goto error;
@@ -1567,6 +1568,7 @@ static int ovs_dp_cmd_new(struct sk_buff *skb, struct genl_info *info)
 	int err, i;
 
 	err = -EINVAL;
+        //printk(KERN_ERR "Hello ovs_dp_cmd_new  %s!/n", nla_data(a[OVS_VPORT_ATTR_NAME]));
 	if (!a[OVS_DP_ATTR_NAME] || !a[OVS_DP_ATTR_UPCALL_PID])
 		goto err;
 

@@ -494,6 +494,8 @@ extern unsigned ofproto_flow_limit;
  * on system load and other factors. This variable is subject to change. */
 extern unsigned ofproto_max_idle;
 
+extern unsigned ofproto_flow_limit_dynamic[3];
+
 /* Number of upcall handler and revalidator threads. Only affects the
  * ofproto-dpif implementation. */
 extern size_t n_handlers, n_revalidators;
